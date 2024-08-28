@@ -1,5 +1,15 @@
+import { Route, Routes } from 'react-router-dom';
+import Layout from './layout/Layout';
+import Home from './pages/Home';
+
 function App() {
-    return <div className="text-bold text-teal-600">App</div>;
+    return (
+        <Layout>
+            <Routes>
+                <Route path="/" element={<Home />} />
+            </Routes>
+        </Layout>
+    );
 }
 
 export default App;
