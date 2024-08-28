@@ -22,7 +22,7 @@ const SearchBar = () => {
                         <option value="remote">Remote</option>
                     </select>
                 </div>
-                <div className="mt-4 flex flex-col space-y-4 md:space-y-0 md:flex-row md:space-x-4">
+                <div className="mt-4 ml-2 flex flex-col space-y-4 md:space-y-0 md:flex-row md:space-x-2">
                     <button className="w-full md:w-1/2 py-2 px-4 text-white bg-primary-700 hover:bg-primary-800 rounded-lg focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900">
                         Search
                     </button>

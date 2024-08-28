@@ -3,6 +3,7 @@ import { AiOutlineClose } from 'react-icons/ai';
 import { HiMenuAlt3 } from 'react-icons/hi';
 import { Link } from 'react-router-dom';
 import Logo from '../assets/logo.png';
+import UserProfile from '../assets/userprofile.png';
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -70,7 +71,7 @@ const Navbar = () => {
                         <div className="relative">
                             <button
                                 onClick={toggleDropdown}
-                                className="flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                className="flex items-center text-sm rounded-full focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-blue-500"
                                 id="user-menu-button"
                                 aria-expanded={isDropdownOpen}
                                 aria-haspopup="true"
@@ -78,7 +79,7 @@ const Navbar = () => {
                                 <span className="sr-only">Open user menu</span>
                                 <img
                                     className="h-8 w-8 rounded-full"
-                                    src="/docs/images/people/profile-picture-3.jpg"
+                                    src={UserProfile}
                                     alt="User"
                                 />
                             </button>

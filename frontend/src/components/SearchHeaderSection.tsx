@@ -12,7 +12,7 @@ const SearchHeaderSection = () => {
 
             {/* Sorting Dropdown */}
             <select
-                className="mt-2 md:mt-0 p-2 w-48 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                className="mt-2 md:mt-0 p-2 w-64 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
             >
