@@ -6,6 +6,7 @@ import 'dotenv/config';
 
 // route imports
 import userRoutes from './routes/user.routes';
+import path from 'path';
 
 const app = express();
 app.use(express.json());
@@ -18,7 +19,10 @@ app.use(
         credentials: true
     })
 );
-console.log('Frontend URL:', process.env.FRONTEND_URL);
+
+const frontendPath = path.join(__dirname, '../../../frontend/dist');
+app.use(express.static(frontendPath));
+
 // enpoints
 app.use('/api/user', userRoutes);
 

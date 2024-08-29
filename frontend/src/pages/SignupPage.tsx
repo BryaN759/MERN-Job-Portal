@@ -56,7 +56,7 @@ const SignupPage = () => {
 
         try {
             const response = await axiosInstance.post(
-                '/user/sign-up',
+                '/api/user/sign-up',
                 {
                     role: formData.role,
                     email: formData.email,

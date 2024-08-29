@@ -24,7 +24,7 @@ const Navbar = () => {
         setLoading(true);
         try {
             await axiosInstance.post(
-                '/user/sign-out',
+                '/api/user/sign-out',
                 {},
                 { withCredentials: true }
             );
