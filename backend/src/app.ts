@@ -2,6 +2,7 @@ import express from 'express';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import 'dotenv/config';
 
 // route imports
 import userRoutes from './routes/user.routes';
@@ -17,7 +18,7 @@ app.use(
         credentials: true
     })
 );
-
+console.log('Frontend URL:', process.env.FRONTEND_URL);
 // enpoints
 app.use('/api/user', userRoutes);
 

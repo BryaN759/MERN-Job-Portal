@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
 import { HiMenuAlt3 } from 'react-icons/hi';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../assets/logo.png';
 import UserProfile from '../assets/userprofile.png';
+import axiosInstance from '../axiosConfig';
 
 const Navbar = () => {
+    const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [loading, setLoading] = useState<boolean>(false);
 
     const toggleNavbar = () => {
         setIsOpen((prev) => !prev);
@@ -15,6 +18,22 @@ const Navbar = () => {
 
     const toggleDropdown = () => {
         setIsDropdownOpen((prev) => !prev);
+    };
+
+    const handleSignOut = async () => {
+        setLoading(true);
+        try {
+            await axiosInstance.post(
+                '/user/sign-out',
+                {},
+                { withCredentials: true }
+            );
+            navigate('/sign-in');
+        } catch (error) {
+            console.error('Error during logout:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -122,13 +141,14 @@ const Navbar = () => {
                                         Earnings
                                     </Link>
                                     <button
-                                        onClick={() => {
-                                            /* Handle sign out */
-                                        }}
+                                        onClick={handleSignOut}
                                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
                                         role="menuitem"
+                                        disabled={loading}
                                     >
-                                        Sign out
+                                        {loading
+                                            ? 'Signing Out...'
+                                            : 'Sign Out'}
                                     </button>
                                 </div>
                             )}

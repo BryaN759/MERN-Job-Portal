@@ -1,8 +1,77 @@
 import { FcGoogle } from 'react-icons/fc';
 import Logo from '../assets/logo.png';
 import { HiOutlineMail } from 'react-icons/hi';
+import { useNavigate } from 'react-router-dom';
+import { ChangeEvent, FormEvent, useState } from 'react';
+import { AxiosError } from 'axios';
+import axiosInstance from '../axiosConfig';
+
+export type SignInFormData = {
+    email: string;
+    password: string;
+    remember: boolean;
+};
 
 const LoginPage = () => {
+    const navigate = useNavigate();
+    const [formData, setFormData] = useState<SignInFormData>({
+        email: '',
+        password: '',
+        remember: false
+    });
+
+    const [error, setError] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const handleChange = (
+        e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    ) => {
+        const { name, value, type } = e.target;
+
+        const checked =
+            type === 'checkbox'
+                ? (e.target as HTMLInputElement).checked
+                : undefined;
+
+        setFormData({
+            ...formData,
+            [name]: type === 'checkbox' ? checked : value
+        });
+    };
+
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        setLoading(true);
+        setError('');
+
+        try {
+            const response = await axiosInstance.post(
+                '/user/sign-in',
+                {
+                    email: formData.email,
+                    password: formData.password
+                },
+                {
+                    withCredentials: true
+                }
+            );
+            console.log('Logged in successfully:', response.data);
+            navigate('/');
+        } catch (err: unknown) {
+            if (err instanceof AxiosError) {
+                setError(
+                    err.response?.data?.message || 'Failed to log in to account'
+                );
+            } else {
+                setError('An unexpected error occurred');
+            }
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <section className="bg-gray-50 dark:bg-gray-900">
             <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
@@ -39,8 +108,16 @@ const LoginPage = () => {
                             <hr className="flex-grow border-t border-gray-300 dark:border-gray-600" />
                         </div>
 
+                        {/* Error Message */}
+                        {error && (
+                            <p className="text-red-500 text-sm">{error}</p>
+                        )}
+
                         {/* Login Form */}
-                        <form className="space-y-4 md:space-y-6" action="#">
+                        <form
+                            className="space-y-4 md:space-y-6"
+                            onSubmit={handleSubmit}
+                        >
                             <div>
                                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                                     Your email
@@ -49,8 +126,11 @@ const LoginPage = () => {
                                     type="email"
                                     name="email"
                                     id="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
                                     className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     placeholder="name@company.com"
+                                    required
                                 />
                             </div>
                             <div>
@@ -61,8 +141,11 @@ const LoginPage = () => {
                                     type="password"
                                     name="password"
                                     id="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
                                     placeholder="••••••••"
                                     className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                    required
                                 />
                             </div>
                             <div className="flex items-center justify-between">
@@ -91,8 +174,9 @@ const LoginPage = () => {
                             <button
                                 type="submit"
                                 className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                                disabled={loading}
                             >
-                                Sign in
+                                {loading ? 'Signing In...' : 'Sign In'}
                             </button>
                             <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                                 Don’t have an account yet?{' '}
