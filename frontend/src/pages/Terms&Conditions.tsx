@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 const TermsAndConditions = () => {
     return (
         <div className="min-h-screen bg-white dark:bg-gray-900 p-6 flex flex-col justify-between">
@@ -77,8 +79,8 @@ const TermsAndConditions = () => {
 
             {/* Go Back Button */}
             <div className="text-center mt-6">
-                <a
-                    href="/sign-up"
+                <Link
+                    to="/sign-up"
                     className="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900"
                 >
                     Go back
@@ -94,7 +96,7 @@ const TermsAndConditions = () => {
                             clipRule="evenodd"
                         ></path>
                     </svg>
-                </a>
+                </Link>
             </div>
         </div>
     );

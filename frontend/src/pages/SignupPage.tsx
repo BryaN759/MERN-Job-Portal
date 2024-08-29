@@ -4,7 +4,7 @@ import { HiOutlineMail } from 'react-icons/hi';
 import axiosInstance from '../axiosConfig';
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { AxiosError } from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 export type SignUpFormData = {
@@ -86,13 +86,13 @@ const SignupPage = () => {
     return (
         <section className="py-10 bg-gray-50 dark:bg-gray-900">
             <div className="flex flex-col items-center justify-center px-6 py-20 mx-auto md:h-screen lg:py-0">
-                <a
-                    href="/sign-up"
+                <Link
+                    to="/sign-up"
                     className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white"
                 >
                     <img className="w-8 h-8 mr-2" src={Logo} alt="logo" />
                     JobConnect
-                </a>
+                </Link>
                 <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                     <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                         <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
@@ -233,12 +233,12 @@ const SignupPage = () => {
                                         className="font-light text-gray-500 dark:text-gray-300"
                                     >
                                         I accept the{' '}
-                                        <a
+                                        <Link
                                             className="font-medium text-primary-600 hover:underline dark:text-primary-500"
-                                            href="/terms&conditions"
+                                            to="/terms&conditions"
                                         >
                                             Terms & Conditions
-                                        </a>
+                                        </Link>
                                     </label>
                                 </div>
                             </div>
@@ -257,12 +257,12 @@ const SignupPage = () => {
                             {/* Redirect to Login */}
                             <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                                 Already have an account?{' '}
-                                <a
-                                    href="/sign-in"
+                                <Link
+                                    to="/sign-in"
                                     className="font-medium text-primary-600 hover:underline dark:text-primary-500"
                                 >
                                     Login here
-                                </a>
+                                </Link>
                             </p>
                         </form>
                     </div>
