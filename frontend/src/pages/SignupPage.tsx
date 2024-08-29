@@ -5,6 +5,7 @@ import axiosInstance from '../axiosConfig';
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { AxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 export type SignUpFormData = {
     role: string;
@@ -55,7 +56,7 @@ const SignupPage = () => {
         setError('');
 
         try {
-            const response = await axiosInstance.post(
+            await axiosInstance.post(
                 '/api/user/sign-up',
                 {
                     role: formData.role,
@@ -67,7 +68,7 @@ const SignupPage = () => {
                 }
             );
 
-            console.log('Account created successfully:', response.data);
+            toast.success('Account created successfully');
             navigate('/');
         } catch (err: unknown) {
             if (err instanceof AxiosError) {
@@ -234,9 +235,9 @@ const SignupPage = () => {
                                         I accept the{' '}
                                         <a
                                             className="font-medium text-primary-600 hover:underline dark:text-primary-500"
-                                            href="#"
+                                            href="/terms&conditions"
                                         >
-                                            Terms and Conditions
+                                            Terms & Conditions
                                         </a>
                                     </label>
                                 </div>

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChangeEvent, FormEvent, useState } from 'react';
 import { AxiosError } from 'axios';
 import axiosInstance from '../axiosConfig';
+import { toast } from 'react-toastify';
 
 export type SignInFormData = {
     email: string;
@@ -46,7 +47,7 @@ const LoginPage = () => {
         setError('');
 
         try {
-            const response = await axiosInstance.post(
+            await axiosInstance.post(
                 '/api/user/sign-in',
                 {
                     email: formData.email,
@@ -56,7 +57,7 @@ const LoginPage = () => {
                     withCredentials: true
                 }
             );
-            console.log('Logged in successfully:', response.data);
+            toast.success('Logged in successfully');
             navigate('/');
         } catch (err: unknown) {
             if (err instanceof AxiosError) {

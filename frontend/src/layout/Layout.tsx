@@ -10,7 +10,7 @@ type LayoutProps = {
 
 const Layout = ({ children }: LayoutProps) => {
     return (
-        <div className="bg-white dark:bg-gray-600">
+        <div className="bg-white dark:bg-gray-600 pb-1">
             <Navbar />
             <Carousel />
             <SearchBar />
