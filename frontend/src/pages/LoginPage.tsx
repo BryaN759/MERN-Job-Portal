@@ -2,10 +2,10 @@ import { FcGoogle } from 'react-icons/fc';
 import Logo from '../assets/logo.png';
 import { HiOutlineMail } from 'react-icons/hi';
 import { Link, useNavigate } from 'react-router-dom';
-import { ChangeEvent, FormEvent, useState } from 'react';
 import { AxiosError } from 'axios';
 import axiosInstance from '../axiosConfig';
 import { toast } from 'react-toastify';
+import { useForm } from 'react-hook-form';
 
 export type SignInFormData = {
     email: string;
@@ -15,63 +15,42 @@ export type SignInFormData = {
 
 const LoginPage = () => {
     const navigate = useNavigate();
-    const [formData, setFormData] = useState<SignInFormData>({
-        email: '',
-        password: '',
-        remember: false
-    });
 
-    const [error, setError] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(false);
+    const {
+        register,
+        handleSubmit,
+        setError,
+        formState: { errors, isSubmitting }
+    } = useForm<SignInFormData>();
 
-    const handleChange = (
-        e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
-    ) => {
-        const { name, value, type } = e.target;
-
-        const checked =
-            type === 'checkbox'
-                ? (e.target as HTMLInputElement).checked
-                : undefined;
-
-        setFormData({
-            ...formData,
-            [name]: type === 'checkbox' ? checked : value
-        });
-    };
-
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        setLoading(true);
-        setError('');
-
+    const onSubmit = handleSubmit(async (data) => {
         try {
-            await axiosInstance.post(
-                '/api/user/sign-in',
-                {
-                    email: formData.email,
-                    password: formData.password
-                },
-                {
-                    withCredentials: true
-                }
-            );
+            await axiosInstance.post('/api/user/sign-in', {
+                email: data.email,
+                password: data.password
+            });
             toast.success('Logged in successfully');
             navigate('/');
         } catch (err: unknown) {
             if (err instanceof AxiosError) {
-                setError(
-                    err.response?.data?.message || 'Failed to log in to account'
-                );
+                const message =
+                    err.response?.data?.message || 'Failed to login';
+                if (message.includes('email')) {
+                    setError('email', { type: 'manual', message });
+                } else if (message.includes('password')) {
+                    setError('password', { type: 'manual', message });
+                } else {
+                    setError('root', { type: 'manual', message });
+                }
             } else {
-                setError('An unexpected error occurred');
+                setError('root', {
+                    type: 'manual',
+                    message: 'An unexpected error occurred'
+                });
             }
             console.error(err);
-        } finally {
-            setLoading(false);
         }
-    };
+    });
 
     return (
         <section className="bg-gray-50 dark:bg-gray-900">
@@ -110,14 +89,16 @@ const LoginPage = () => {
                         </div>
 
                         {/* Error Message */}
-                        {error && (
-                            <p className="text-red-500 text-sm">{error}</p>
+                        {errors.root && (
+                            <div className="text-red-500 text-sm">
+                                {errors.root.message}
+                            </div>
                         )}
 
                         {/* Login Form */}
                         <form
                             className="space-y-4 md:space-y-6"
-                            onSubmit={handleSubmit}
+                            onSubmit={onSubmit}
                         >
                             <div>
                                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -125,14 +106,18 @@ const LoginPage = () => {
                                 </label>
                                 <input
                                     type="email"
-                                    name="email"
-                                    id="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
+                                    {...register('email', {
+                                        required: 'Email is required'
+                                    })}
                                     className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     placeholder="name@company.com"
                                     required
                                 />
+                                {errors.email && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {errors.email.message}
+                                    </p>
+                                )}
                             </div>
                             <div>
                                 <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -140,22 +125,26 @@ const LoginPage = () => {
                                 </label>
                                 <input
                                     type="password"
-                                    name="password"
-                                    id="password"
-                                    value={formData.password}
-                                    onChange={handleChange}
+                                    {...register('password', {
+                                        required: 'Password is required'
+                                    })}
                                     placeholder="••••••••"
                                     className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     required
                                 />
+                                {errors.password && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {errors.password.message}
+                                    </p>
+                                )}
                             </div>
                             <div className="flex items-center justify-between">
                                 <div className="flex items-start">
                                     <div className="flex items-center h-5">
                                         <input
                                             id="remember"
-                                            aria-describedby="remember"
                                             type="checkbox"
+                                            {...register('remember')}
                                             className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800"
                                         />
                                     </div>
@@ -175,9 +164,9 @@ const LoginPage = () => {
                             <button
                                 type="submit"
                                 className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-                                disabled={loading}
+                                disabled={isSubmitting}
                             >
-                                {loading ? 'Signing In...' : 'Sign In'}
+                                {isSubmitting ? 'Signing In...' : 'Sign In'}
                             </button>
                             <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                                 Don’t have an account yet?{' '}

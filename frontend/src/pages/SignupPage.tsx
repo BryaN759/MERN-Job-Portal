@@ -2,10 +2,10 @@ import Logo from '../assets/logo.png';
 import { FcGoogle } from 'react-icons/fc';
 import { HiOutlineMail } from 'react-icons/hi';
 import axiosInstance from '../axiosConfig';
-import { ChangeEvent, FormEvent, useState } from 'react';
 import { AxiosError } from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useForm } from 'react-hook-form';
 
 export type SignUpFormData = {
     role: string;
@@ -17,74 +17,49 @@ export type SignUpFormData = {
 
 const SignupPage = () => {
     const navigate = useNavigate();
-    const [formData, setFormData] = useState<SignUpFormData>({
-        role: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        acceptTerms: false
-    });
 
-    const [error, setError] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(false);
+    const {
+        register,
+        handleSubmit,
+        setError,
+        getValues,
+        formState: { errors, isSubmitting }
+    } = useForm<SignUpFormData>();
 
-    const handleChange = (
-        e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
-    ) => {
-        const { name, value, type } = e.target;
-
-        const checked =
-            type === 'checkbox'
-                ? (e.target as HTMLInputElement).checked
-                : undefined;
-
-        setFormData({
-            ...formData,
-            [name]: type === 'checkbox' ? checked : value
-        });
-    };
-
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        if (formData.password !== formData.confirmPassword) {
-            setError('Passwords do not match');
-            return;
-        }
-
-        setLoading(true);
-        setError('');
-
+    const onSubmit = handleSubmit(async (data) => {
         try {
-            await axiosInstance.post(
-                '/api/user/sign-up',
-                {
-                    role: formData.role,
-                    email: formData.email,
-                    password: formData.password
-                },
-                {
-                    withCredentials: true
-                }
-            );
+            await axiosInstance.post('/api/user/sign-up', {
+                role: data.role,
+                email: data.email,
+                password: data.password
+            });
 
             toast.success('Account created successfully');
             navigate('/');
         } catch (err: unknown) {
             if (err instanceof AxiosError) {
-                setError(
-                    err.response?.data?.message || 'Failed to create account'
-                );
+                const message =
+                    err.response?.data?.message || 'Failed to create account';
+
+                if (message.includes('email')) {
+                    setError('email', { type: 'manual', message });
+                } else if (message.includes('password')) {
+                    setError('password', { type: 'manual', message });
+                } else {
+                    setError('root', { type: 'manual', message });
+                }
             } else {
-                setError('An unexpected error occurred');
+                setError('root', {
+                    type: 'manual',
+                    message: 'An unexpected error occurred'
+                });
             }
             console.error(err);
-        } finally {
-            setLoading(false);
         }
-    };
+    });
+
     return (
-        <section className="py-10 bg-gray-50 dark:bg-gray-900">
+        <section className="bg-gray-50 dark:bg-gray-900 pt-24 pb-48">
             <div className="flex flex-col items-center justify-center px-6 py-20 mx-auto md:h-screen lg:py-0">
                 <Link
                     to="/sign-up"
@@ -121,14 +96,16 @@ const SignupPage = () => {
                         </div>
 
                         {/* Error Message */}
-                        {error && (
-                            <p className="text-red-500 text-sm">{error}</p>
+                        {errors.root && (
+                            <div className="text-red-500 text-sm">
+                                {errors.root.message}
+                            </div>
                         )}
 
                         {/* Sign Up Form */}
                         <form
                             className="space-y-4 md:space-y-6"
-                            onSubmit={handleSubmit}
+                            onSubmit={onSubmit}
                         >
                             {/* Type Selection Dropdown */}
                             <div>
@@ -140,18 +117,24 @@ const SignupPage = () => {
                                 </label>
                                 <select
                                     id="role"
-                                    name="role"
-                                    value={formData.role}
-                                    onChange={handleChange}
+                                    {...register('role', {
+                                        required:
+                                            'You must choose an account type'
+                                    })}
                                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     required
                                 >
-                                    <option value="" disabled>
+                                    <option disabled>
                                         Choose account type
                                     </option>
                                     <option value="seeker">Seeker</option>
                                     <option value="recruiter">Recruiter</option>
                                 </select>
+                                {errors.role && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {errors.role.message}
+                                    </p>
+                                )}
                             </div>
 
                             {/* Email Input */}
@@ -164,14 +147,17 @@ const SignupPage = () => {
                                 </label>
                                 <input
                                     type="email"
-                                    name="email"
-                                    id="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
+                                    {...register('email', {
+                                        required: 'Email is required'
+                                    })}
                                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     placeholder="name@company.com"
-                                    required
                                 />
+                                {errors.email && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {errors.email.message}
+                                    </p>
+                                )}
                             </div>
 
                             {/* Password Input */}
@@ -184,14 +170,17 @@ const SignupPage = () => {
                                 </label>
                                 <input
                                     type="password"
-                                    name="password"
-                                    id="password"
-                                    value={formData.password}
-                                    onChange={handleChange}
+                                    {...register('password', {
+                                        required: 'Password is required'
+                                    })}
                                     placeholder="••••••••"
                                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                    required
                                 />
+                                {errors.password && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {errors.password.message}
+                                    </p>
+                                )}
                             </div>
 
                             {/* Confirm Password Input */}
@@ -204,14 +193,20 @@ const SignupPage = () => {
                                 </label>
                                 <input
                                     type="password"
-                                    name="confirmPassword"
-                                    id="confirmPassword"
-                                    value={formData.confirmPassword}
-                                    onChange={handleChange}
+                                    {...register('confirmPassword', {
+                                        required: 'This field is required',
+                                        validate: (value) =>
+                                            value === getValues('password') ||
+                                            'Passwords do not match'
+                                    })}
                                     placeholder="••••••••"
                                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                    required
                                 />
+                                {errors.confirmPassword && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {errors.confirmPassword.message}
+                                    </p>
+                                )}
                             </div>
 
                             {/* Terms and Conditions */}
@@ -219,10 +214,11 @@ const SignupPage = () => {
                                 <div className="flex items-center h-5">
                                     <input
                                         id="acceptTerms"
-                                        name="acceptTerms"
                                         type="checkbox"
-                                        checked={formData.acceptTerms}
-                                        onChange={handleChange}
+                                        {...register('acceptTerms', {
+                                            required:
+                                                'You need to accept the terms first'
+                                        })}
                                         className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800"
                                         required
                                     />
@@ -247,9 +243,9 @@ const SignupPage = () => {
                             <button
                                 type="submit"
                                 className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-                                disabled={loading}
+                                disabled={isSubmitting}
                             >
-                                {loading
+                                {isSubmitting
                                     ? 'Signing up...'
                                     : 'Create an account'}
                             </button>
