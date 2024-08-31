@@ -6,6 +6,7 @@ import SignupPage from './pages/SignupPage';
 import Toast from './components/Toast';
 import PasswordReset from './pages/PasswordReset';
 import TermsAndConditions from './pages/Terms&Conditions';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
     return (
@@ -26,6 +27,7 @@ function App() {
                     path="/terms&conditions"
                     element={<TermsAndConditions />}
                 />
+                <Route path="/profile" element={<ProfilePage />} />
             </Routes>
             <Toast />
         </>
